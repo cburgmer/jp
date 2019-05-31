@@ -12,7 +12,8 @@ fn main() {
     let selector = Selector::new(&selector)
         .expect("Unable to parse selector");
 
-    let json: Value = serde_json::from_reader(io::stdin()).unwrap();
+    let json: Value = serde_json::from_reader(io::stdin())
+        .expect("Unable to parse JSON");
 
     selector.find(&json)
         .map(|m| m.to_string())
