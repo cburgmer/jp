@@ -11,14 +11,13 @@ fn do_query(selector: String, json: Value) {
         .expect("Unable to parse selector");
 
     selector.find(&json)
-        .map(|m| m.to_string())
-        .for_each(|e| println!("{}", e));
+        .try_for_each(|m| serde_json::to_writer(io::stdout(), &m))
+        .expect("Unable to serialize JSON");
 }
 
 fn pretty_print(json: Value) {
-    let pretty_json = serde_json::to_string_pretty(&json)
+    serde_json::to_writer_pretty(io::stdout(), &json)
         .expect("Unable to format JSON");
-    println!("{}", pretty_json);
 }
 
 fn main() {
