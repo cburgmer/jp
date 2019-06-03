@@ -5,8 +5,9 @@ jq but with [JSONPath](https://goessner.net/articles/JsonPath/).
 
 
 ``` shell
-$ jp '$.some[0]' <<< '{"some": ["value", 3]}'
+$ jp -r '$.some.*' <<< '{"some": ["value", 3]}'
 "value"
+3
 ```
 
 ``` shell
