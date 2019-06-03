@@ -37,6 +37,7 @@ fn main() {
         .about("jq but with JSONPath")
         .arg(Arg::with_name("r")
              .short("r")
+             .requires("SELECTOR")
              .help("Returns one entry per line"))
         .arg(Arg::with_name("SELECTOR")
              .help("JSONPath selector")
