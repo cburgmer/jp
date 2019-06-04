@@ -1,27 +1,36 @@
 use std::io;
-extern crate jsonpath;
+extern crate jsonpath_lib as jsonpath;
 extern crate serde_json;
 extern crate clap;
 
 use clap::{Arg, App};
-use jsonpath::Selector;
 use serde_json::Value;
 
-fn do_query(selector: &str, json: Value, show_raw: bool) {
-    let selector = Selector::new(selector)
+fn print_raw(value: &Value) {
+    println!("{}", serde_json::to_string(&value).unwrap());
+}
+
+fn serialize_raw(result: Value) {
+    if result.is_array() {
+        let entries = result.as_array().unwrap();
+        entries
+            .iter()
+            .for_each(|e| print_raw(&e));
+    } else {
+        print_raw(&result)
+    }
+}
+
+fn do_query(query: &str, json: Value, show_raw: bool) {
+    let mut selector = jsonpath::selector(&json);
+
+    let result = selector(query)
         .expect("Unable to parse selector");
 
-    let matches = selector.find(&json);
-
     if show_raw {
-        matches
-            .map(|m| serde_json::to_string(&m).unwrap())
-            .for_each(|m| {
-                println!("{}", m);
-            });
+        serialize_raw(result);
     } else {
-        let m: Vec<&Value> = matches.collect();
-        serde_json::to_writer(io::stdout(), &m)
+        serde_json::to_writer(io::stdout(), &result)
             .expect("Unable to serialize JSON");
     }
 }

@@ -61,6 +61,19 @@ some_json_input() {
     diff <(echo "$result") <(echo "$expected_output")
 }
 
+@test "returns the entries of an array match on each line" {
+    result="$(some_json_input | jp -r '$.1')"
+    expected_output='"2"
+3'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "returns the matches with -r on a single result" {
+    result="$(some_json_input | jp -r '$.1[1]')"
+
+    [ "$result" = '3' ]
+}
+
 @test "returns successfully on -r option with selector" {
     some_json_input | jp -r '$'
 }
