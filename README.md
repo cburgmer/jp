@@ -22,7 +22,10 @@ $ jp <<< '{"some": ["value", 3]}'
 
 ## Rationale
 
-1. JSONPath is more portable than jq's own query language.
-   Once you learn the jq language, you now master jq, but this knowledge can probably not be applied any place else. There are many implementations of JSONPath, in all the popular languages, you are very likely to meet again.
+1. JSONPath is more or less a standard implemented in many languages. jq seems to ship with its very own idea of a query language.
 
-2. jq might be doing too many things. Unix probably already has some tooling for that. Let's not reinvent the wheel. jp doesn't plan on becoming too big.
+2. jq is powerful yet has a steep learning curve. Unix on the other hand might already some of the problems jq addresses. Let's not reinvent the wheel.
+
+## Road map
+
+In absence of a road map here are a few queries from an actual shell history: [goals/JQ_EXAMPLES.md](goals/JQ_EXAMPLES.md)

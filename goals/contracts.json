@@ -1,0 +1,16 @@
+{
+    "d": {
+        "results": [
+            {
+                "ItemSet": {
+                    "results": [{"id": 1}, {"id": 2}]
+                }
+            },
+            {
+                "ItemSet": {
+                    "results": [{"id": 3}, {"id": 4}]
+                }
+            }
+        ]
+    }
+}
