@@ -135,3 +135,10 @@ some_json_stream() {
 1'
     diff <(echo "$result") <(echo "$expected_output")
 }
+
+@test "allows chaining of jp calls" {
+    result="$(some_json_stream | jp '$.a[*]' | jp '$[1]')"
+    expected_output='0
+1'
+    diff <(echo "$result") <(echo "$expected_output")
+}
