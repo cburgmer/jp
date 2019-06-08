@@ -1,24 +1,23 @@
-jp
-==
+# jp
 
-jq but with [JSONPath](https://goessner.net/articles/JsonPath/).
+jp is a JSON processor for the command line using
+[JSONPath](https://goessner.net/articles/JsonPath/)
+(aka "jq but with JSONPath").
 
 
-``` shell
-$ jp -r '$.some' <<< '{"some": ["value", 3]}'
-"value"
-3
-```
-
-``` shell
-$ jp <<< '{"some": ["value", 3]}'
-{
-  "some": [
-    "value",
+    $ jp -r '$.some' <<< '{"some": ["value", 3]}'
+    "value"
     3
-  ]
-}
-```
+
+
+    $ jp <<< '{"some": ["value", 3]}'
+    {
+      "some": [
+        "value",
+        3
+      ]
+    }
+
 
 ## Rationale
 
@@ -29,6 +28,10 @@ $ jp <<< '{"some": ["value", 3]}'
 2. jq is powerful yet has a steep learning curve. Unix on the other hand might
    already solve some of the problems jq addresses. Let's not reinvent the wheel.
 
-## Road map
 
-In absence of a road map here are a few queries from an actual shell history: [goals/JQ_EXAMPLES.md](goals/JQ_EXAMPLES.md)
+## Goals
+
+In absence of a roadmap here are a few queries from an actual shell history:
+[goals/JQ_EXAMPLES.md](goals/JQ_EXAMPLES.md)
+
+Also so far unanswered questions: [goals/Questions.md](goals/Questions.md)
