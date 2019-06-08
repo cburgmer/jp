@@ -21,6 +21,8 @@ jp is a JSON processor for the command line using
 
 ## Rationale
 
+jq is already quite successful, yet jp wants to improve on that:
+
 1. JSONPath is more or less a standard implemented in many languages. jq seems
    to ship with its very own idea of a query language. Let's focus on one query
    language we can reuse in other areas.
