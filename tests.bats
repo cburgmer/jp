@@ -4,6 +4,11 @@ some_json_input() {
     echo '{"1": ["2", 3]}'
 }
 
+some_json_stream() {
+    echo '{"a": ["b", 0]}'
+    echo '{"a": ["ccc", 1]}'
+}
+
 
 @test "prints help" {
     jp -h | grep 'jq but with JSONPath'
@@ -82,4 +87,51 @@ some_json_input() {
     run jp -r
 
     [ "$status" -eq 1 ]
+}
+
+@test "pretty prints a JSON stream" {
+    result="$(some_json_stream | jp)"
+    expected_output='{
+  "a": [
+    "b",
+    0
+  ]
+}
+{
+  "a": [
+    "ccc",
+    1
+  ]
+}'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "handles a single match selector for JSON stream" {
+    result="$(some_json_stream | jp '$.a[0]')"
+    expected_output='"b"
+"ccc"'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "handles a multiple match selector for JSON stream" {
+    result="$(some_json_stream | jp '$.a[*]')"
+    expected_output='["b",0]
+["ccc",1]'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "handles a single match selector for JSON stream with -r option" {
+    result="$(some_json_stream | jp -r '$.a[0]')"
+    expected_output='"b"
+"ccc"'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "handles a multiple match selector for JSON stream with -r option" {
+    result="$(some_json_stream | jp -r '$.a[*]')"
+    expected_output='"b"
+0
+"ccc"
+1'
+    diff <(echo "$result") <(echo "$expected_output")
 }

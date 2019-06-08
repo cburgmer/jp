@@ -4,7 +4,7 @@ extern crate serde_json;
 extern crate clap;
 
 use clap::{Arg, App};
-use serde_json::Value;
+use serde_json::{Deserializer, Value};
 
 fn print_raw(value: &Value) {
     println!("{}", serde_json::to_string(&value).unwrap());
@@ -32,12 +32,14 @@ fn do_query(query: &str, json: Value, show_raw: bool) {
     } else {
         serde_json::to_writer(io::stdout(), &result)
             .expect("Unable to serialize JSON");
+        println!("");
     }
 }
 
 fn pretty_print(json: Value) {
     serde_json::to_writer_pretty(io::stdout(), &json)
         .expect("Unable to format JSON");
+    println!("");
 }
 
 fn main() {
@@ -53,12 +55,15 @@ fn main() {
              .index(1))
         .get_matches();
 
-    let json: Value = serde_json::from_reader(io::stdin())
-        .expect("Unable to parse JSON");
+    let stream = Deserializer::from_reader(io::stdin())
+        .into_iter::<Value>()
+        .map(|v| v.expect("Unable to parse JSON"));
 
-    if matches.is_present("SELECTOR") {
-        do_query(matches.value_of("SELECTOR").unwrap(), json, matches.is_present("r"))
-    } else {
-        pretty_print(json);
+    for json in stream {
+        if matches.is_present("SELECTOR") {
+            do_query(matches.value_of("SELECTOR").unwrap(), json, matches.is_present("r"))
+        } else {
+            pretty_print(json);
+        }
     }
 }
