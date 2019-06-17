@@ -59,16 +59,29 @@ some_json_stream() {
     [[ "$output" =~ "Unable to parse selector" ]]
 }
 
+@test "unwraps a string for -r" {
+    result="$(echo '"a string"' | jp -r '$')"
+    expected_output='a string'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "unwraps a list of strings for -r" {
+    result="$(echo '["a string", "another"]' | jp -r '$')"
+    expected_output='a string
+another'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
 @test "returns the matches on each line" {
     result="$(some_json_input | jp -r '$.1.*')"
-    expected_output='"2"
+    expected_output='2
 3'
     diff <(echo "$result") <(echo "$expected_output")
 }
 
 @test "returns the entries of an array match on each line" {
     result="$(some_json_input | jp -r '$.1')"
-    expected_output='"2"
+    expected_output='2
 3'
     diff <(echo "$result") <(echo "$expected_output")
 }
@@ -122,16 +135,16 @@ some_json_stream() {
 
 @test "handles a single match selector for JSON stream with -r option" {
     result="$(some_json_stream | jp -r '$.a[0]')"
-    expected_output='"b"
-"ccc"'
+    expected_output='b
+ccc'
     diff <(echo "$result") <(echo "$expected_output")
 }
 
 @test "handles a multiple match selector for JSON stream with -r option" {
     result="$(some_json_stream | jp -r '$.a[*]')"
-    expected_output='"b"
+    expected_output='b
 0
-"ccc"
+ccc
 1'
     diff <(echo "$result") <(echo "$expected_output")
 }

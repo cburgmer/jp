@@ -7,7 +7,12 @@ use clap::{Arg, App};
 use serde_json::{Deserializer, Value};
 
 fn print_raw(value: &Value) {
-    println!("{}", serde_json::to_string(&value).unwrap());
+    if value.is_string() {
+        let s = value.as_str().unwrap();
+        println!("{}", s);
+    } else {
+        println!("{}", serde_json::to_string(&value).unwrap());
+    }
 }
 
 fn serialize_raw(result: Value) {
