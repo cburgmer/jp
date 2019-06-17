@@ -59,6 +59,12 @@ some_json_stream() {
     [[ "$output" =~ "Unable to parse selector" ]]
 }
 
+@test "unwraps a number for -r" {
+    result="$(echo '{"key": 42}' | jp -r '$.key')"
+    expected_output='42'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
 @test "unwraps a string for -r" {
     result="$(echo '"a string"' | jp -r '$')"
     expected_output='a string'
@@ -69,6 +75,12 @@ some_json_stream() {
     result="$(echo '["a string", "another"]' | jp -r '$')"
     expected_output='a string
 another'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "serialized a complex JSON object for -r" {
+    result="$(echo '{"key": 42}' | jp -r '$')"
+    expected_output='{"key":42}'
     diff <(echo "$result") <(echo "$expected_output")
 }
 
