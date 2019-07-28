@@ -45,9 +45,17 @@ some_json_stream() {
 }
 
 @test "executes a JSONPath selector" {
-    result="$(some_json_input | jp '$.1.*')"
+    result="$(some_json_input | jp '$.1')"
 
     [ "$result" = '["2",3]' ]
+}
+
+@test "lists multiple results on one line each" {
+    result="$(some_json_input | jp '$.1.*')"
+
+    expected_output='"2"
+3'
+    diff <(echo "$result") <(echo "$expected_output")
 }
 
 @test "fails on an invalid JSONPath selector" {
@@ -72,9 +80,15 @@ some_json_stream() {
 }
 
 @test "unwraps a list of strings for -r" {
-    result="$(echo '["a string", "another"]' | jp -r '$')"
+    result="$(echo '["a string", "another"]' | jp -r '$.*')"
     expected_output='a string
 another'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "does not unwrap a scalar array match for -r" {
+    result="$(echo '["a string", "another"]' | jp -r '$')"
+    expected_output='["a string","another"]'
     diff <(echo "$result") <(echo "$expected_output")
 }
 
@@ -84,17 +98,16 @@ another'
     diff <(echo "$result") <(echo "$expected_output")
 }
 
-@test "returns the matches on each line" {
+@test "unwraps all matches for -r" {
     result="$(some_json_input | jp -r '$.1.*')"
     expected_output='2
 3'
     diff <(echo "$result") <(echo "$expected_output")
 }
 
-@test "returns the entries of an array match on each line" {
+@test "returns a scalar array match on one line" {
     result="$(some_json_input | jp -r '$.1')"
-    expected_output='2
-3'
+    expected_output='["2",3]'
     diff <(echo "$result") <(echo "$expected_output")
 }
 
@@ -140,8 +153,10 @@ another'
 
 @test "handles a multiple match selector for JSON stream" {
     result="$(some_json_stream | jp '$.a[*]')"
-    expected_output='["b",0]
-["ccc",1]'
+    expected_output='"b"
+0
+"ccc"
+1'
     diff <(echo "$result") <(echo "$expected_output")
 }
 
@@ -162,7 +177,7 @@ ccc
 }
 
 @test "allows chaining of jp calls" {
-    result="$(some_json_stream | jp '$.a[*]' | jp '$[1]')"
+    result="$(some_json_stream | jp '$.a' | jp '$[1]')"
     expected_output='0
 1'
     diff <(echo "$result") <(echo "$expected_output")

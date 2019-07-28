@@ -15,29 +15,24 @@ fn print_raw(value: &Value) {
     }
 }
 
-fn serialize_raw(result: Value) {
-    if result.is_array() {
-        let entries = result.as_array().unwrap();
-        entries
-            .iter()
-            .for_each(|e| print_raw(&e));
-    } else {
-        print_raw(&result)
-    }
-}
-
 fn do_query(query: &str, json: Value, show_raw: bool) {
     let mut selector = jsonpath::selector(&json);
 
-    let result = selector(query)
+    let results = selector(query)
         .expect("Unable to parse selector");
 
     if show_raw {
-        serialize_raw(result);
+        results
+            .iter()
+            .for_each(|e| print_raw(&e));
     } else {
-        serde_json::to_writer(io::stdout(), &result)
-            .expect("Unable to serialize JSON");
-        println!("");
+        results
+            .iter()
+            .for_each(|e| {
+                serde_json::to_writer(io::stdout(), &e)
+                    .expect("Unable to serialize JSON");
+                println!("");
+            });
     }
 }
 
