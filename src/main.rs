@@ -15,6 +15,12 @@ fn print_raw(value: &Value) {
     }
 }
 
+fn print_json(value: &Value) {
+    serde_json::to_writer(io::stdout(), &value)
+        .expect("Unable to serialize JSON");
+    println!("");
+}
+
 fn do_query(query: &str, json: Value, show_raw: bool) {
     let mut selector = jsonpath::selector(&json);
 
@@ -28,11 +34,7 @@ fn do_query(query: &str, json: Value, show_raw: bool) {
     } else {
         results
             .iter()
-            .for_each(|e| {
-                serde_json::to_writer(io::stdout(), &e)
-                    .expect("Unable to serialize JSON");
-                println!("");
-            });
+            .for_each(|e| print_json(&e));
     }
 }
 
