@@ -6,17 +6,23 @@ extern crate clap;
 use clap::{Arg, App};
 use serde_json::{Deserializer, Value};
 
+fn print_json(value: &Value) {
+    serde_json::to_writer(io::stdout(), &value)
+        .expect("Unable to serialize JSON");
+    println!("");
+}
+
 fn print_raw(value: &Value) {
     if value.is_string() {
         let s = value.as_str().unwrap();
         println!("{}", s);
     } else {
-        println!("{}", serde_json::to_string(&value).unwrap());
+        print_json(value);
     }
 }
 
-fn print_json(value: &Value) {
-    serde_json::to_writer(io::stdout(), &value)
+fn print_pretty(value: &Value) {
+    serde_json::to_writer_pretty(io::stdout(), &value)
         .expect("Unable to serialize JSON");
     println!("");
 }
@@ -26,12 +32,6 @@ fn execute_query<'a>(query: &'a str, json: &'a Value) -> Vec<&'a Value> {
 
     selector(query)
         .expect("Unable to parse selector")
-}
-
-fn pretty_print(json: Value) {
-    serde_json::to_writer_pretty(io::stdout(), &json)
-        .expect("Unable to format JSON");
-    println!("");
 }
 
 fn main() {
@@ -62,7 +62,9 @@ fn main() {
                 .iter()
                 .for_each(|e| print_json(&e));
         } else {
-            pretty_print(json);
+            results
+                .iter()
+                .for_each(|e| print_pretty(&e));
         }
     }
 }
