@@ -3,7 +3,7 @@ extern crate jsonpath_lib as jsonpath;
 extern crate serde_json;
 extern crate clap;
 
-use clap::{Arg, App};
+use clap::{Arg, App, ArgMatches};
 use serde_json::{Deserializer, Value};
 
 fn print_json(value: &Value) {
@@ -25,6 +25,22 @@ fn print_pretty(value: &Value) {
     serde_json::to_writer_pretty(io::stdout(), &value)
         .expect("Unable to serialize JSON");
     println!("");
+}
+
+fn print(values: Vec<&Value>, matches: &ArgMatches) {
+    if matches.is_present("r") {
+        values
+            .iter()
+            .for_each(|e| print_raw(&e));
+    } else if matches.is_present("SELECTOR") {
+        values
+            .iter()
+            .for_each(|e| print_json(&e));
+    } else {
+        values
+            .iter()
+            .for_each(|e| print_pretty(&e));
+    }
 }
 
 fn execute_query<'a>(query: &'a str, json: &'a Value) -> Vec<&'a Value> {
@@ -52,19 +68,6 @@ fn main() {
 
     for json in stream {
         let results = execute_query(matches.value_of("SELECTOR").unwrap_or("$"), &json);
-
-        if matches.is_present("r") {
-            results
-                .iter()
-                .for_each(|e| print_raw(&e));
-        } else if matches.is_present("SELECTOR") {
-            results
-                .iter()
-                .for_each(|e| print_json(&e));
-        } else {
-            results
-                .iter()
-                .for_each(|e| print_pretty(&e));
-        }
+        print(results, &matches);
     }
 }
