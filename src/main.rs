@@ -43,14 +43,7 @@ fn print(values: Vec<&Value>, display: &Display) {
     }
 }
 
-fn execute_query<'a>(query: &'a str, json: &'a Value) -> Vec<&'a Value> {
-    let mut selector = jsonpath::selector(&json);
-
-    selector(query)
-        .expect("Unable to parse selector")
-}
-
-fn main() {
+fn config() -> (Display, String) {
     let matches = App::new("jp")
         .version("0.0.1")
         .about("jq but with JSONPath")
@@ -71,12 +64,27 @@ fn main() {
         display = Display::Pretty;
     }
 
+    let selector = matches.value_of("SELECTOR").unwrap_or("$");
+
+    (display, selector.to_string())
+}
+
+fn execute_query<'a>(query: &'a str, json: &'a Value) -> Vec<&'a Value> {
+    let mut selector = jsonpath::selector(&json);
+
+    selector(query)
+        .expect("Unable to parse selector")
+}
+
+fn main() {
+    let (display, selector) = config();
+
     let stream = Deserializer::from_reader(io::stdin())
         .into_iter::<Value>()
         .map(|v| v.expect("Unable to parse JSON"));
 
     for json in stream {
-        let results = execute_query(matches.value_of("SELECTOR").unwrap_or("$"), &json);
+        let results = execute_query(&selector, &json);
         print(results, &display);
     }
 }
