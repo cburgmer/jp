@@ -69,22 +69,17 @@ fn config() -> (Display, String) {
     (display, selector.to_string())
 }
 
-fn execute_query<'a>(query: &'a str, json: &'a Value) -> Vec<&'a Value> {
-    let mut selector = jsonpath::selector(&json);
-
-    selector(query)
-        .expect("Unable to parse selector")
-}
-
 fn main() {
     let (display, selector) = config();
+
+    let mut select = jsonpath::compile(&selector);
 
     let stream = Deserializer::from_reader(io::stdin())
         .into_iter::<Value>()
         .map(|v| v.expect("Unable to parse JSON"));
 
     for json in stream {
-        let results = execute_query(&selector, &json);
+        let results = select(&json).expect("Unable to parse selector");
         print(results, &display);
     }
 }
