@@ -40,7 +40,7 @@ fn main() {
         .about("jq but with JSONPath")
         .arg(Arg::with_name("r")
              .short("r")
-             .help("Returns one entry per line"))
+             .help("Unwraps primitive JSON values"))
         .arg(Arg::with_name("SELECTOR")
              .help("JSONPath selector")
              .index(1))
@@ -51,13 +51,7 @@ fn main() {
         .map(|v| v.expect("Unable to parse JSON"));
 
     for json in stream {
-        let results: Vec<&Value>;
-
-        if matches.is_present("SELECTOR") {
-            results = execute_query(matches.value_of("SELECTOR").unwrap(), &json);
-        } else {
-            results = vec![&json];
-        }
+        let results = execute_query(matches.value_of("SELECTOR").unwrap_or("$"), &json);
 
         if matches.is_present("r") {
             results
