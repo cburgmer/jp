@@ -9,6 +9,11 @@ some_json_stream() {
     echo '{"a": ["ccc", 1]}'
 }
 
+primitives_json_stream() {
+    echo '"str"'
+    echo 42
+}
+
 
 @test "prints help" {
     jp -h | grep 'jq but with JSONPath'
@@ -121,12 +126,6 @@ another'
     some_json_input | jp -r '$'
 }
 
-@test "fails on -r option without selector" {
-    run jp -r
-
-    [ "$status" -eq 1 ]
-}
-
 @test "pretty prints a JSON stream" {
     result="$(some_json_stream | jp)"
     expected_output='{
@@ -180,5 +179,12 @@ ccc
     result="$(some_json_stream | jp '$.a' | jp '$[1]')"
     expected_output='0
 1'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "unwraps a JSON stream without selector" {
+    result="$(primitives_json_stream | jp -r)"
+    expected_output='str
+42'
     diff <(echo "$result") <(echo "$expected_output")
 }
