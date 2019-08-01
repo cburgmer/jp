@@ -16,7 +16,7 @@ primitives_json_stream() {
 
 
 @test "prints help" {
-    jp -h | grep 'jq but with JSONPath'
+    jp -h | grep 'A simpler jq, and with JSONPath'
 }
 
 @test "prints a version number" {
