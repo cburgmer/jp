@@ -1,6 +1,4 @@
 - How to handle `null` results?
 - Should we use Unix error codes by default on missing results (also see question about 'nulls')?
-- Should we unwrap values (like jq does with `-r`)?
 - Can we show nicer errors?
-- Do we want to support CSV or TSV out of the box?
 - Do we want to make it easy to generate JSON documents with values from the command line?
