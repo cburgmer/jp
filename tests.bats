@@ -214,3 +214,12 @@ ccc
 
     [ "$status" -eq 1 ]
 }
+
+@test "ships an example" {
+    result="$(jp --example -r "$..author")"
+    expected_output='Nigel Rees
+Evelyn Waugh
+Herman Melville
+J. R. R. Tolkien'
+    diff <(echo "$result") <(echo "$expected_output")
+}

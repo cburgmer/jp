@@ -6,6 +6,8 @@ extern crate clap;
 use clap::{Arg, App};
 use serde_json::{Deserializer, Value};
 
+use jp::example;
+
 enum Display {
     Raw,
     OneLine,
@@ -43,7 +45,7 @@ fn serialize(values: Vec<&Value>, display: &Display) -> Vec<String> {
         .collect()
 }
 
-fn config() -> (Display, bool, String) {
+fn config() -> (Display, bool, bool, String) {
     let matches = App::new("jp")
         .version("0.0.1")
         .about("jq but with JSONPath")
@@ -54,6 +56,9 @@ fn config() -> (Display, bool, String) {
              .short("t")
              .requires("SELECTOR")
              .help("Transposes a list of matches separated by tabs"))
+        .arg(Arg::with_name("example")
+             .long("example")
+             .help("Prints example JSON for practising JSONPath"))
         .arg(Arg::with_name("SELECTOR")
              .help("JSONPath selector")
              .index(1))
@@ -70,17 +75,23 @@ fn config() -> (Display, bool, String) {
 
     let selector = matches.value_of("SELECTOR").unwrap_or("$");
 
-    (display, matches.is_present("tabs"), selector.to_string())
+    (display, matches.is_present("tabs"), matches.is_present("example"), selector.to_string())
 }
 
 fn main() {
-    let (display, serialize_to_tabs, selector) = config();
+    let (display, serialize_to_tabs, output_example, selector) = config();
 
     let mut select = jsonpath::compile(&selector);
 
-    let stream = Deserializer::from_reader(io::stdin())
-        .into_iter::<Value>()
-        .map(|v| v.expect("Unable to parse JSON"));
+    let stream;
+    if output_example {
+        stream = vec![example()];
+    } else {
+        stream = Deserializer::from_reader(io::stdin())
+            .into_iter::<Value>()
+            .map(|v| v.expect("Unable to parse JSON"))
+            .collect::<Vec<_>>();
+    }
 
     for json in stream {
         let results = select(&json).expect("Unable to parse selector");
