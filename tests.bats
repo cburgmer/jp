@@ -194,3 +194,15 @@ ccc
     expected_output="$(echo -e '"2"\t3')"
     diff <(echo "$result") <(echo "$expected_output")
 }
+
+@test "allows for combining -t and -r" {
+    result="$(some_json_input | jp -rt '$["1"][*]')"
+    expected_output="$(echo -e '2\t3')"
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "serializes a stream into tabs" {
+    result="$(some_json_stream | jp -t '$["a"][*]')"
+    expected_output="$(echo -e '"b"\t0\n"ccc"\t1')"
+    diff <(echo "$result") <(echo "$expected_output")
+}

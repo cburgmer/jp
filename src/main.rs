@@ -12,35 +12,35 @@ enum Display {
     Pretty
 }
 
-fn print_json(value: &Value) {
-    serde_json::to_writer(io::stdout(), &value)
-        .expect("Unable to serialize JSON");
-    println!("");
+fn serialize_json(value: &Value) -> String {
+    serde_json::to_string(&value)
+        .expect("Unable to serialize JSON")
 }
 
-fn print_raw(value: &Value) {
+fn serialize_raw(value: &Value) -> String {
     if value.is_string() {
-        let s = value.as_str().unwrap();
-        println!("{}", s);
+        value.as_str().unwrap().to_string()
     } else {
-        print_json(value);
+        serialize_json(value)
     }
 }
 
-fn print_pretty(value: &Value) {
-    serde_json::to_writer_pretty(io::stdout(), &value)
-        .expect("Unable to serialize JSON");
-    println!("");
+fn serialize_pretty(value: &Value) -> String {
+    serde_json::to_string_pretty(&value)
+        .expect("Unable to serialize JSON")
 }
 
-fn print(values: Vec<&Value>, display: &Display) {
-    for v in values {
-        match display {
-            Display::Raw => print_raw(&v),
-            Display::OneLine => print_json(&v),
-            Display::Pretty => print_pretty(&v)
-        }
-    }
+fn serialize(values: Vec<&Value>, display: &Display) -> Vec<String> {
+    values
+        .iter()
+        .map(|v| {
+            match display {
+                Display::Raw => serialize_raw(&v),
+                Display::OneLine => serialize_json(&v),
+                Display::Pretty => serialize_pretty(&v)
+            }
+        })
+        .collect()
 }
 
 fn config() -> (Display, bool, String) {
@@ -83,15 +83,14 @@ fn main() {
 
     for json in stream {
         let results = select(&json).expect("Unable to parse selector");
+        let output = serialize(results, &display);
+
         if serialize_to_tabs {
-            let line: String = results.into_iter()
-                .map(|v| serde_json::to_string(&v)
-                     .expect("Unable to serialize JSON"))
-                .collect::<Vec<_>>()
-                .join("\t");
-            println!("{}", line);
+            println!("{}", output.join("\t"));
         } else {
-            print(results, &display);
+            output
+                .iter()
+                .for_each(|s| println!("{}", s));
         }
     }
 }
