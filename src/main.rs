@@ -52,6 +52,7 @@ fn config() -> (Display, bool, String) {
              .help("Unwraps primitive JSON values"))
         .arg(Arg::with_name("tabs")
              .short("t")
+             .requires("SELECTOR")
              .help("Transposes a list of matches separated by tabs"))
         .arg(Arg::with_name("SELECTOR")
              .help("JSONPath selector")

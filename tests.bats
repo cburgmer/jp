@@ -206,3 +206,11 @@ ccc
     expected_output="$(echo -e '"b"\t0\n"ccc"\t1')"
     diff <(echo "$result") <(echo "$expected_output")
 }
+
+@test "fails if -t is used without selector" {
+    {
+        run jp -t
+    } <<< ''
+
+    [ "$status" -eq 1 ]
+}
