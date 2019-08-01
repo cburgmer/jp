@@ -62,6 +62,20 @@ fn config() -> (Display, bool, bool, String) {
         .arg(Arg::with_name("SELECTOR")
              .help("JSONPath selector")
              .index(1))
+        .after_help("Supported syntax elements are
+$\t\t\tThe root object/element
+@\t\t\tThe current object/element
+. or []\t\t\tChild operator
+..\t\t\tRecursive descent
+*\t\t\tWildcard
+[]\t\t\tSubscript operator
+[,]\t\t\tUnion operator
+[start:end:step]\tArray slice operator
+?()\t\t\tApplies a filter expression
+
+E.g. get the prices of everything in the store:
+  jp --example | jp '$.store..price'
+")
         .get_matches();
 
     let display: Display;
