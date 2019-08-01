@@ -188,3 +188,9 @@ ccc
 42'
     diff <(echo "$result") <(echo "$expected_output")
 }
+
+@test "prints matches separated by tabs for -t" {
+    result="$(some_json_input | jp -t '$["1"][*]')"
+    expected_output="$(echo -e '"2"\t3')"
+    diff <(echo "$result") <(echo "$expected_output")
+}

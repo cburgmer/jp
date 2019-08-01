@@ -43,13 +43,16 @@ fn print(values: Vec<&Value>, display: &Display) {
     }
 }
 
-fn config() -> (Display, String) {
+fn config() -> (Display, bool, String) {
     let matches = App::new("jp")
         .version("0.0.1")
         .about("jq but with JSONPath")
         .arg(Arg::with_name("r")
              .short("r")
              .help("Unwraps primitive JSON values"))
+        .arg(Arg::with_name("tabs")
+             .short("t")
+             .help("Transposes a list of matches separated by tabs"))
         .arg(Arg::with_name("SELECTOR")
              .help("JSONPath selector")
              .index(1))
@@ -66,11 +69,11 @@ fn config() -> (Display, String) {
 
     let selector = matches.value_of("SELECTOR").unwrap_or("$");
 
-    (display, selector.to_string())
+    (display, matches.is_present("tabs"), selector.to_string())
 }
 
 fn main() {
-    let (display, selector) = config();
+    let (display, serialize_to_tabs, selector) = config();
 
     let mut select = jsonpath::compile(&selector);
 
@@ -80,6 +83,15 @@ fn main() {
 
     for json in stream {
         let results = select(&json).expect("Unable to parse selector");
-        print(results, &display);
+        if serialize_to_tabs {
+            let line: String = results.into_iter()
+                .map(|v| serde_json::to_string(&v)
+                     .expect("Unable to serialize JSON"))
+                .collect::<Vec<_>>()
+                .join("\t");
+            println!("{}", line);
+        } else {
+            print(results, &display);
+        }
     }
 }
