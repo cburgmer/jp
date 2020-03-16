@@ -215,6 +215,12 @@ ccc
     [ "$status" -eq 1 ]
 }
 
+@test "allows selecting columns when combining two queries of jp" {
+    result="$(some_json_stream | jp '$.a' | jp -t '$[1,0]'])"
+    expected_output="$(echo -e '0\t"b"\n1\t"ccc"')"
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
 @test "ships an example" {
     result="$(jp --example -r "$..author")"
     expected_output='Nigel Rees
