@@ -1,4 +1,4 @@
-#!/usr/bin/env bats -t
+#!/usr/bin/env bats
 
 some_json_input() {
     echo '{"1": ["2", 3]}'
