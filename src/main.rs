@@ -62,16 +62,15 @@ fn config() -> (Display, bool, bool, String) {
         .arg(Arg::with_name("SELECTOR")
              .help("JSONPath selector")
              .index(1))
-        .after_help("Supported syntax elements are
-$\t\t\tThe root object/element
-@\t\t\tThe current object/element
-. or []\t\t\tChild operator
-..\t\t\tRecursive descent
-*\t\t\tWildcard
-[]\t\t\tSubscript operator
-[,]\t\t\tUnion operator
-[start:end:step]\tArray slice operator
-?()\t\t\tApplies a filter expression
+        .after_help("SELECTOR EXAMPLES:
+    array index\t\t$[2]
+    object key\t\t$.key
+    complex object key\t$['a key']
+    union\t\t$['key','another']
+    array slice\t\t$[0:4]
+    filter expression\t$[?(@.key==42)]
+    recursive descent\t$..key
+    wildcard\t\t$.*
 
 E.g. get the prices of everything in the store:
   jp --example | jp '$.store..price'
