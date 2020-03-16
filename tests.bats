@@ -1,4 +1,4 @@
-#!/usr/bin/env bats
+#!/usr/bin/env bats -t
 
 some_json_input() {
     echo '{"1": ["2", 3]}'
@@ -20,6 +20,7 @@ primitives_json_stream() {
 }
 
 @test "prints a version number" {
+    jp --version >&3
     jp --version | grep 'jp \d\.\d\.\d'
 }
 
