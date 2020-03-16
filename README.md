@@ -19,6 +19,9 @@ jp is a JSON processor for the command line using
     }
 
 
+jp uses [jsonpath_lib](https://github.com/freestrings/jsonpath) under the hood.
+You can check its [implementation of JSONPath here](https://cburgmer.github.io/json-path-comparison/).
+
 ## Features
 
     $ jp --help
