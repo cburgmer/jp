@@ -20,8 +20,7 @@ primitives_json_stream() {
 }
 
 @test "prints a version number" {
-    jp --version >&3
-    jp --version | grep -e 'jp \d\.\d\.\d'
+    jp --version | grep 'jp [0-9]\.[0-9]\.[0-9]'
 }
 
 @test "fails on an invalid option" {
