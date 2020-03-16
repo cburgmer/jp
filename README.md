@@ -43,16 +43,15 @@ You can check its [implementation of JSONPath here](https://cburgmer.github.io/j
     ARGS:
         <SELECTOR>    JSONPath selector
 
-    Supported syntax elements are
-    $			The root object/element
-    @			The current object/element
-    . or []			Child operator
-    ..			Recursive descent
-    *			Wildcard
-    []			Subscript operator
-    [,]			Union operator
-    [start:end:step]	Array slice operator
-    ?()			Applies a filter expression
+    SELECTOR EXAMPLES:
+        array index         $[2]
+        object key          $.key
+        complex object key  $['a key']
+        union               $['key','another']
+        array slice         $[0:4]
+        filter expression   $[?(@.key==42)]
+        recursive descent   $..key
+        wildcard            $.*
 
     E.g. get the prices of everything in the store:
       jp --example | jp '$.store..price'
