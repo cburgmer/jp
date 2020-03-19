@@ -72,6 +72,12 @@ primitives_json_stream() {
     [[ "$output" =~ "Unable to parse selector" ]]
 }
 
+@test "returns a null value correctly" {
+    result="$(echo '{"key": null}' | jp '$.key')"
+    expected_output="null"
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
 @test "unwraps a number for -r" {
     result="$(echo '{"key": 42}' | jp -r '$.key')"
     expected_output='42'
@@ -81,6 +87,20 @@ primitives_json_stream() {
 @test "unwraps a string for -r" {
     result="$(echo '"a string"' | jp -r '$')"
     expected_output='a string'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "unwraps a null value for -r into an empty line" {
+    # make line breaks explicit
+    result="$(echo 'null' | jp -r '$' | tr '\n' ',')"
+    expected_output=","
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "outputs nothing for no match for -r" {
+    # make line breaks explicit
+    result="$(echo '{}' | jp -r '$.key' | tr '\n' ',')"
+    expected_output=""
     diff <(echo "$result") <(echo "$expected_output")
 }
 

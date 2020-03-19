@@ -22,6 +22,8 @@ fn serialize_json(value: &Value) -> String {
 fn serialize_raw(value: &Value) -> String {
     if value.is_string() {
         value.as_str().unwrap().to_string()
+    } else  if value.is_null() {
+        "".to_string()
     } else {
         serialize_json(value)
     }

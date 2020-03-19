@@ -16,5 +16,5 @@ fi
 (
   cd "$SCRIPT_DIR"
   cargo build
-  PATH="$SCRIPT_DIR/target/debug:$PATH" ./tests.bats
+  PATH="$SCRIPT_DIR/target/debug:$PATH" bats -t ./tests.bats
 )
