@@ -57,7 +57,7 @@ fn config() -> (Display, bool, bool, String) {
         .arg(Arg::with_name("tabs")
              .short("t")
              .requires("SELECTOR")
-             .help("Transposes a list of matches separated by tabs"))
+             .help("Transposes all matches per document, separated by tabs"))
         .arg(Arg::with_name("example")
              .long("example")
              .help("Prints example JSON for practising JSONPath"))

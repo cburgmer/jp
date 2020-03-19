@@ -5,12 +5,12 @@ jp is a JSON processor for the command line using
 (aka "a simpler jq, and with JSONPath").
 
 
-    $ jp -r '$.some.*' <<< '{"some": ["value", 3]}'
+    $ echo '{"some": ["value", 3]}' | jp -r '$.some.*'
     value
     3
 
 
-    $ jp <<< '{"some": ["value", 3]}'
+    $ echo '{"some": ["value", 3]}' | jp
     {
       "some": [
         "value",
