@@ -18,7 +18,7 @@ script:
   - "./go"
   - "cargo build --target $TARGET --release"
   - "mkdir -p stage"
-  - "mv target/release/jp stage/jp-$TARGET"
+  - "mv target/$TARGET/release/jp stage/jp-$TARGET"
 
 deploy:
   provider: releases
