@@ -1,7 +1,14 @@
 language: rust
+
 rust:
   - stable
-  - beta
+
 cache: cargo
+
+jobs:
+  include:
+    - os: linux
+    - os: osx
+
 script:
-  - ./go
+  - "./go"
