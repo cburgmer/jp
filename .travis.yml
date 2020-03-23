@@ -9,6 +9,8 @@ jobs:
   include:
     - os: linux
     - os: osx
+      before_install:
+        - "brew install bats-core"
 
 script:
   - "./go"
