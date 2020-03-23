@@ -8,15 +8,17 @@ cache: cargo
 jobs:
   include:
     - os: linux
+      env: TARGET=x86_64-unknown-linux-gnu
     - os: osx
+      env: TARGET=x86_64-apple-darwin
       before_install:
         - "brew install bats-core"
 
 script:
   - "./go"
-  - "cargo build --release"
+  - "cargo build --target $TARGET --release"
   - "mkdir -p stage"
-  - "mv target/release/jp stage/jp-$TRAVIS_OS_NAME-$TRAVIS_CPU_ARCH"
+  - "mv target/release/jp stage/jp-$TARGET"
 
 deploy:
   provider: releases
