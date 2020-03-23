@@ -24,6 +24,15 @@ You can check its [implementation of JSONPath here](https://cburgmer.github.io/j
 
 [![Build Status](https://travis-ci.org/cburgmer/jp.svg?branch=master)](https://travis-ci.org/cburgmer/jp)
 
+## Install
+
+    # First, on GNU/Linux
+    $ curl -L -o jp https://github.com/cburgmer/jp/releases/download/0.1.0/jp-x86_64-unknown-linux-gnu
+    # or on OS X
+    $ curl -L -o jp https://github.com/cburgmer/jp/releases/download/0.1.0/jp-x86_64-apple-darwin
+    # and finally
+    $ chmod a+x jp && mv jp /usr/local/bin
+
 ## Features
 
     $ jp --help
