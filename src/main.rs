@@ -49,7 +49,7 @@ fn serialize(values: Vec<&Value>, display: &Display) -> Vec<String> {
 
 fn config() -> (Display, bool, bool, String) {
     let matches = App::new("jp")
-        .version("0.0.1")
+        .version("0.2.0")
         .about("A simpler jq, and with JSONPath")
         .arg(Arg::with_name("r")
              .short("r")

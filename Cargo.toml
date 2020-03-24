@@ -1,6 +1,6 @@
 [package]
 name = "jp"
-version = "0.1.0"
+version = "0.2.0"
 authors = ["Christoph Burgmer <christoph.burgmer@gmail.com>"]
 edition = "2018"
 license = "Apache-2.0"

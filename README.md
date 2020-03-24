@@ -36,7 +36,7 @@ You can check its [implementation of JSONPath here](https://cburgmer.github.io/j
 ## Features
 
     $ jp --help
-    jp 0.0.1
+    jp 0.2.0
     A simpler jq, and with JSONPath
 
     USAGE:
