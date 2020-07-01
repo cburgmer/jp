@@ -241,6 +241,20 @@ ccc
     diff <(echo "$result") <(echo "$expected_output")
 }
 
+@test "prints matches separated by NUL for -0" {
+    result="$(some_json_input | jp -0 '$["1"][*]' | xargs -0 -n1 -I% echo "<%>")"
+    expected_output="$(echo -e '<"2">\n<3>')"
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "fails if -0 is used together with -t" {
+    {
+        run jp -0t '$'
+    } <<< ''
+
+    [ "$status" -eq 1 ]
+}
+
 @test "ships an example" {
     result="$(jp --example -r "$..author")"
     expected_output='Nigel Rees

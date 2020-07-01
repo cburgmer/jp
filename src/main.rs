@@ -10,8 +10,14 @@ use jp::example;
 
 enum Display {
     Raw,
-    OneLine,
-    Pretty
+    JsonBlob,
+    JsonPretty
+}
+
+enum Output {
+    Tabs,
+    Nul,
+    Newlines
 }
 
 fn serialize_json(value: &Value) -> String {
@@ -40,14 +46,14 @@ fn serialize(values: Vec<&Value>, display: &Display) -> Vec<String> {
         .map(|v| {
             match display {
                 Display::Raw => serialize_raw(&v),
-                Display::OneLine => serialize_json(&v),
-                Display::Pretty => serialize_pretty(&v)
+                Display::JsonBlob => serialize_json(&v),
+                Display::JsonPretty => serialize_pretty(&v)
             }
         })
         .collect()
 }
 
-fn config() -> (Display, bool, bool, String) {
+fn config() -> (Display, Output, bool, String) {
     let matches = App::new("jp")
         .version("0.3.0")
         .about("A simpler jq, and with JSONPath")
@@ -58,6 +64,10 @@ fn config() -> (Display, bool, bool, String) {
              .short("t")
              .requires("SELECTOR")
              .help("Transposes all matches per document, separated by tabs"))
+        .arg(Arg::with_name("print0")
+             .short("0")
+             .conflicts_with("tabs")
+             .help("Separates all matches by NUL (\\0), helpful in conjunction with xargs -0"))
         .arg(Arg::with_name("example")
              .long("example")
              .help("Prints example JSON for practising JSONPath"))
@@ -83,18 +93,27 @@ E.g. get the prices of everything in the store:
     if matches.is_present("r") {
         display = Display::Raw;
     } else if matches.is_present("SELECTOR") {
-        display = Display::OneLine;
+        display = Display::JsonBlob;
     } else {
-        display = Display::Pretty;
+        display = Display::JsonPretty;
+    }
+
+    let output: Output;
+    if matches.is_present("tabs") {
+        output = Output::Tabs;
+    } else if matches.is_present("print0") {
+        output = Output::Nul
+    } else {
+        output = Output::Newlines
     }
 
     let selector = matches.value_of("SELECTOR").unwrap_or("$");
 
-    (display, matches.is_present("tabs"), matches.is_present("example"), selector.to_string())
+    (display, output, matches.is_present("example"), selector.to_string())
 }
 
 fn main() {
-    let (display, serialize_to_tabs, output_example, selector) = config();
+    let (display, output, output_example, selector) = config();
 
     let mut select = jsonpath::compile(&selector);
 
@@ -110,14 +129,14 @@ fn main() {
 
     for json in stream {
         let results = select(&json).expect("Unable to parse selector");
-        let output = serialize(results, &display);
+        let entries = serialize(results, &display);
 
-        if serialize_to_tabs {
-            println!("{}", output.join("\t"));
-        } else {
-            output
+        match output {
+            Output::Tabs => println!("{}", entries.join("\t")),
+            Output::Nul => print!("{}", entries.join("\0")),
+            Output::Newlines => entries
                 .iter()
-                .for_each(|s| println!("{}", s));
+                .for_each(|s| println!("{}", s))
         }
     }
 }
