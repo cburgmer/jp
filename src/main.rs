@@ -14,7 +14,7 @@ enum Serialization {
     JsonPretty
 }
 
-enum Output {
+enum Formatting {
     Tabs,
     Nul,
     Newlines
@@ -53,7 +53,7 @@ fn serialize(values: Vec<&Value>, serialization: &Serialization) -> Vec<String> 
         .collect()
 }
 
-fn config() -> (Serialization, Output, bool, String) {
+fn config() -> (Serialization, Formatting, bool, String) {
     let matches = App::new("jp")
         .version("0.3.0")
         .about("A simpler jq, and with JSONPath")
@@ -100,22 +100,22 @@ E.g. get the prices of everything in the store:
         serialization = Serialization::JsonPretty;
     }
 
-    let output: Output;
+    let formatting: Formatting;
     if matches.is_present("tabs") {
-        output = Output::Tabs;
+        formatting = Formatting::Tabs;
     } else if matches.is_present("print0") {
-        output = Output::Nul
+        formatting = Formatting::Nul
     } else {
-        output = Output::Newlines
+        formatting = Formatting::Newlines
     }
 
     let selector = matches.value_of("SELECTOR").unwrap_or("$");
 
-    (serialization, output, matches.is_present("example"), selector.to_string())
+    (serialization, formatting, matches.is_present("example"), selector.to_string())
 }
 
 fn main() {
-    let (serialization, output, output_example, selector) = config();
+    let (serialization, formatting, output_example, selector) = config();
 
     let mut select = jsonpath::compile(&selector);
 
@@ -133,10 +133,10 @@ fn main() {
         let results = select(&json).expect("Unable to parse selector");
         let entries = serialize(results, &serialization);
 
-        match output {
-            Output::Tabs => println!("{}", entries.join("\t")),
-            Output::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
-            Output::Newlines => entries.iter().for_each(|s| println!("{}", s))
+        match formatting {
+            Formatting::Tabs => println!("{}", entries.join("\t")),
+            Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
+            Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
         }
     }
 }
