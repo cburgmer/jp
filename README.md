@@ -47,8 +47,9 @@ See [Howto jp](./HOWTO.md) for an introduction.
     FLAGS:
             --example    Prints example JSON for practising JSONPath
         -h, --help       Prints help information
+        -0               Separates all matches by NUL (\0), helpful in conjunction with xargs -0
         -r               Unwraps primitive JSON values
-        -t               Transposes a list of matches separated by tabs
+        -t               Transposes all matches per document, separated by tabs
         -V, --version    Prints version information
 
     ARGS:
