@@ -29,9 +29,9 @@ See [Howto jp](./HOWTO.md) for an introduction.
 ## Install
 
     # First, on GNU/Linux
-    $ curl -L -o jp https://github.com/cburgmer/jp/releases/download/0.3.0/jp-x86_64-unknown-linux-gnu
+    $ curl -L -o jp https://github.com/cburgmer/jp/releases/download/0.4.0/jp-x86_64-unknown-linux-gnu
     # or on OS X
-    $ curl -L -o jp https://github.com/cburgmer/jp/releases/download/0.3.0/jp-x86_64-apple-darwin
+    $ curl -L -o jp https://github.com/cburgmer/jp/releases/download/0.4.0/jp-x86_64-apple-darwin
     # and finally
     $ chmod a+x jp && mv jp /usr/local/bin
 
