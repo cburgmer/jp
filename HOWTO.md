@@ -94,3 +94,16 @@ Some pitfalls
 Compare `{"key": ["2", 3]}` for `$.key` and `$.key.*`.
 The first will return one result `["2", 3]`. The other will return two results:
 `"2"` and `3`.
+
+### Returning tabular data from a single document
+
+For a nested structure like `[[1, 2], [8, 9]]` we might want to pick which level
+of nesting goes into rows, and what elements into columns. Do note that JSONPath
+will unconditionally flatten all matches, so `$.*.*` will only return flattened
+results `1`, `2`, `8`, and `9`, not a table as we might have expected.
+We can combine two calls to jp for what we are trying to achieve, first picking
+the rows, and then in a subsequent call the columns:
+
+    $ echo '[[1, 2], [8, 9]]' | jp '$.*' | jp -t '$[0, 1]'
+    1	2
+    8	9
