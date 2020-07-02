@@ -38,7 +38,7 @@ See [Howto jp](./HOWTO.md) for an introduction.
 ## Features
 
     $ jp --help
-    jp 0.3.0
+    jp 0.4.0
     A simpler jq, and with JSONPath
 
     USAGE:
