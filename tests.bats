@@ -74,6 +74,14 @@ primitives_json_stream() {
     diff <(echo "$output") <(echo "$expected_output")
 }
 
+@test "does not fail on invalid JSONPath selector if no JSON document provided" {
+    {
+        run jp INVALID
+    } <<< ""
+
+    [ "$status" -eq 0 ]
+}
+
 @test "returns a null value correctly" {
     result="$(echo '{"key": null}' | jp '$.key')"
     expected_output="null"
