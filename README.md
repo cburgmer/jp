@@ -24,6 +24,8 @@ You can check its [implementation of JSONPath here](https://cburgmer.github.io/j
 
 [![Build Status](https://travis-ci.org/cburgmer/jp.svg?branch=master)](https://travis-ci.org/cburgmer/jp)
 
+See [Howto jp](./HOWTO.md) for an introduction.
+
 ## Install
 
     # First, on GNU/Linux
