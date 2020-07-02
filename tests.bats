@@ -247,6 +247,12 @@ ccc
     diff <(echo "$result") <(echo "$expected_output")
 }
 
+@test "prints matches separated by NUL on a JSON stream" {
+    result="$(some_json_stream | jp -0 '$.a.*' | xargs -0 -n1 -I% echo "<%>")"
+    expected_output="$(echo -e '<"b">\n<0>\n<"ccc">\n<1>')"
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
 @test "fails if -0 is used together with -t" {
     {
         run jp -0t '$'

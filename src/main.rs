@@ -133,10 +133,8 @@ fn main() {
 
         match output {
             Output::Tabs => println!("{}", entries.join("\t")),
-            Output::Nul => print!("{}", entries.join("\0")),
-            Output::Newlines => entries
-                .iter()
-                .for_each(|s| println!("{}", s))
+            Output::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
+            Output::Newlines => entries.iter().for_each(|s| println!("{}", s))
         }
     }
 }
