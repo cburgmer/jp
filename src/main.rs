@@ -3,6 +3,8 @@ extern crate jsonpath_lib as jsonpath;
 extern crate serde_json;
 extern crate clap;
 
+use std::process;
+
 use clap::{Arg, ArgGroup, App};
 use serde_json::{Deserializer, Value};
 
@@ -21,8 +23,7 @@ enum Formatting {
 }
 
 fn serialize_json(value: &Value) -> String {
-    serde_json::to_string(&value)
-        .expect("Unable to serialize JSON")
+    serde_json::to_string(&value) .unwrap()
 }
 
 fn serialize_raw(value: &Value) -> String {
@@ -36,8 +37,7 @@ fn serialize_raw(value: &Value) -> String {
 }
 
 fn serialize_pretty(value: &Value) -> String {
-    serde_json::to_string_pretty(&value)
-        .expect("Unable to serialize JSON")
+    serde_json::to_string_pretty(&value) .unwrap()
 }
 
 fn serialize(values: Vec<&Value>, serialization: &Serialization) -> Vec<String> {
@@ -125,12 +125,20 @@ fn main() {
     } else {
         stream = Deserializer::from_reader(io::stdin())
             .into_iter::<Value>()
-            .map(|v| v.expect("Unable to parse JSON"))
+            .map(|v|
+                 v.unwrap_or_else(|err| {
+                     eprintln!("Unable to parse JSON, {}", err);
+                     process::exit(4);
+                 })
+            )
             .collect::<Vec<_>>();
     }
 
     for json in stream {
-        let results = select(&json).expect("Unable to parse selector");
+        let results = select(&json).unwrap_or_else(|err| {
+            eprintln!("Unable to parse selector, {}", err);
+            process::exit(3);
+        });
         let entries = serialize(results, &serialization);
 
         match formatting {

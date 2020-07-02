@@ -29,13 +29,13 @@ primitives_json_stream() {
     [ "$status" -eq 1 ]
 }
 
-@test "fails on invalid JSON" {
+@test "fails on invalid JSON with a nice message to stderr" {
     {
-        run jp
+        run sh -c 'jp > /dev/null'
     } <<< $(echo 'INVALID')
 
-    [ "$status" -ne 0 ]
-    [[ "$output" =~ "Unable to parse JSON" ]]
+    [ "$status" -eq 4 ]
+    [[ "$output" == "Unable to parse JSON, expected value at line 1 column 1" ]]
 }
 
 @test "formats JSON input" {
@@ -63,13 +63,15 @@ primitives_json_stream() {
     diff <(echo "$result") <(echo "$expected_output")
 }
 
-@test "fails on an invalid JSONPath selector" {
+@test "fails on an invalid JSONPath selector with a nice message to stderr" {
     {
-        run jp INVALID
+        run sh -c 'jp INVALID > /dev/null'
     } <<< $(echo '{}')
 
-    [ "$status" -ne 0 ]
-    [[ "$output" =~ "Unable to parse selector" ]]
+    [ "$status" -eq 3 ]
+
+    expected_output="$(echo -e 'Unable to parse selector, path error: \nINVALID\n^^^^^^^')"
+    diff <(echo "$output") <(echo "$expected_output")
 }
 
 @test "returns a null value correctly" {
