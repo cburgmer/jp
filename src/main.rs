@@ -3,12 +3,12 @@ extern crate jsonpath_lib as jsonpath;
 extern crate serde_json;
 extern crate clap;
 
-use clap::{Arg, App};
+use clap::{Arg, ArgGroup, App};
 use serde_json::{Deserializer, Value};
 
 use jp::example;
 
-enum Display {
+enum Serialization {
     Raw,
     JsonBlob,
     JsonPretty
@@ -40,20 +40,20 @@ fn serialize_pretty(value: &Value) -> String {
         .expect("Unable to serialize JSON")
 }
 
-fn serialize(values: Vec<&Value>, display: &Display) -> Vec<String> {
+fn serialize(values: Vec<&Value>, serialization: &Serialization) -> Vec<String> {
     values
         .iter()
         .map(|v| {
-            match display {
-                Display::Raw => serialize_raw(&v),
-                Display::JsonBlob => serialize_json(&v),
-                Display::JsonPretty => serialize_pretty(&v)
+            match serialization {
+                Serialization::Raw => serialize_raw(&v),
+                Serialization::JsonBlob => serialize_json(&v),
+                Serialization::JsonPretty => serialize_pretty(&v)
             }
         })
         .collect()
 }
 
-fn config() -> (Display, Output, bool, String) {
+fn config() -> (Serialization, Output, bool, String) {
     let matches = App::new("jp")
         .version("0.3.0")
         .about("A simpler jq, and with JSONPath")
@@ -66,7 +66,6 @@ fn config() -> (Display, Output, bool, String) {
              .help("Transposes all matches per document, separated by tabs"))
         .arg(Arg::with_name("print0")
              .short("0")
-             .conflicts_with("tabs")
              .help("Separates all matches by NUL (\\0), helpful in conjunction with xargs -0"))
         .arg(Arg::with_name("example")
              .long("example")
@@ -74,6 +73,9 @@ fn config() -> (Display, Output, bool, String) {
         .arg(Arg::with_name("SELECTOR")
              .help("JSONPath selector")
              .index(1))
+        .group(ArgGroup::with_name("formatting")
+               .args(&["tabs", "print0"])
+               .multiple(false))
         .after_help("SELECTOR EXAMPLES:
     array index\t\t$[2]
     object key\t\t$.key
@@ -89,13 +91,13 @@ E.g. get the prices of everything in the store:
 ")
         .get_matches();
 
-    let display: Display;
+    let serialization: Serialization;
     if matches.is_present("r") {
-        display = Display::Raw;
+        serialization = Serialization::Raw;
     } else if matches.is_present("SELECTOR") {
-        display = Display::JsonBlob;
+        serialization = Serialization::JsonBlob;
     } else {
-        display = Display::JsonPretty;
+        serialization = Serialization::JsonPretty;
     }
 
     let output: Output;
@@ -109,11 +111,11 @@ E.g. get the prices of everything in the store:
 
     let selector = matches.value_of("SELECTOR").unwrap_or("$");
 
-    (display, output, matches.is_present("example"), selector.to_string())
+    (serialization, output, matches.is_present("example"), selector.to_string())
 }
 
 fn main() {
-    let (display, output, output_example, selector) = config();
+    let (serialization, output, output_example, selector) = config();
 
     let mut select = jsonpath::compile(&selector);
 
@@ -129,7 +131,7 @@ fn main() {
 
     for json in stream {
         let results = select(&json).expect("Unable to parse selector");
-        let entries = serialize(results, &display);
+        let entries = serialize(results, &serialization);
 
         match output {
             Output::Tabs => println!("{}", entries.join("\t")),
