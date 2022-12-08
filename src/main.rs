@@ -5,7 +5,7 @@ extern crate clap;
 
 use std::process;
 
-use clap::{Arg, ArgGroup, App};
+use clap::{Arg, ArgGroup, ArgAction, Command};
 use serde_json::{Deserializer, Value};
 
 use jp::example;
@@ -54,27 +54,31 @@ fn serialize(values: Vec<&Value>, serialization: &Serialization) -> Vec<String> 
 }
 
 fn config() -> (Serialization, Formatting, bool, String) {
-    let matches = App::new("jp")
+    let matches = Command::new("jp")
         .version("0.4.0")
         .about("A simpler jq, and with JSONPath")
-        .arg(Arg::with_name("r")
-             .short("r")
+        .arg(Arg::new("r")
+             .short('r')
+             .action(ArgAction::SetTrue)
              .help("Unwraps primitive JSON values"))
-        .arg(Arg::with_name("tabs")
-             .short("t")
+        .arg(Arg::new("tabs")
+             .short('t')
              .requires("SELECTOR")
+             .action(ArgAction::SetTrue)
              .help("Transposes all matches per document, separated by tabs"))
-        .arg(Arg::with_name("print0")
-             .short("0")
+        .arg(Arg::new("print0")
+             .short('0')
+             .action(ArgAction::SetTrue)
              .help("Separates all matches by NUL (\\0), helpful in conjunction with xargs -0"))
-        .arg(Arg::with_name("example")
+        .arg(Arg::new("example")
              .long("example")
+             .action(ArgAction::SetTrue)
              .help("Prints example JSON for practising JSONPath"))
-        .arg(Arg::with_name("SELECTOR")
+        .arg(Arg::new("SELECTOR")
              .help("JSONPath selector")
              .index(1))
-        .group(ArgGroup::with_name("formatting")
-               .args(&["tabs", "print0"])
+        .group(ArgGroup::new("formatting")
+               .args(["tabs", "print0"])
                .multiple(false))
         .after_help("SELECTOR EXAMPLES:
     array index\t\t$[2]
@@ -92,26 +96,28 @@ E.g. get the prices of everything in the store:
         .get_matches();
 
     let serialization: Serialization;
-    if matches.is_present("r") {
+    if matches.get_flag("r") {
         serialization = Serialization::Raw;
-    } else if matches.is_present("SELECTOR") {
+    } else if matches.contains_id("SELECTOR") {
         serialization = Serialization::JsonBlob;
     } else {
         serialization = Serialization::JsonPretty;
     }
 
     let formatting: Formatting;
-    if matches.is_present("tabs") {
+    if matches.get_flag("tabs") {
         formatting = Formatting::Tabs;
-    } else if matches.is_present("print0") {
+    } else if matches.get_flag("print0") {
         formatting = Formatting::Nul
     } else {
         formatting = Formatting::Newlines
     }
 
-    let selector = matches.value_of("SELECTOR").unwrap_or("$");
+    let root_selector = String::from("$");
 
-    (serialization, formatting, matches.is_present("example"), selector.to_string())
+    let selector = matches.get_one::<String>("SELECTOR").unwrap_or(&root_selector);
+
+    (serialization, formatting, matches.get_flag("example"), selector.to_string())
 }
 
 fn main() {

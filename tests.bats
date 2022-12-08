@@ -26,7 +26,7 @@ primitives_json_stream() {
 @test "fails on an invalid option" {
     run jp -b
 
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 @test "fails on invalid JSON with a nice message to stderr" {
@@ -242,7 +242,7 @@ ccc
         run jp -t
     } <<< ''
 
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 @test "allows selecting columns when combining two queries of jp" {
@@ -268,7 +268,7 @@ ccc
         run jp -0t '$'
     } <<< ''
 
-    [ "$status" -eq 1 ]
+    [ "$status" -eq 2 ]
 }
 
 @test "ships an example" {
