@@ -123,7 +123,10 @@ E.g. get the prices of everything in the store:
 fn main() {
     let (serialization, formatting, output_example, selector) = config();
 
-    let mut select = jsonpath::compile(&selector);
+    let template = jsonpath::Compiled::compile(&selector).unwrap_or_else(|err| {
+        eprintln!("Unable to parse selector\n{}", err);
+        process::exit(3);
+    });
 
     let stream;
     if output_example {
@@ -141,10 +144,7 @@ fn main() {
     }
 
     for json in stream {
-        let results = select(&json).unwrap_or_else(|err| {
-            eprintln!("Unable to parse selector, {}", err);
-            process::exit(3);
-        });
+        let results = template.select(&json).unwrap();
         let entries = serialize(results, &serialization);
 
         match formatting {

@@ -70,16 +70,16 @@ primitives_json_stream() {
 
     [ "$status" -eq 3 ]
 
-    expected_output="$(echo -e 'Unable to parse selector, path error: \nINVALID\n^^^^^^^')"
+    expected_output="$(echo -e 'Unable to parse selector\nINVALID\n^^^^^^^')"
     diff <(echo "$output") <(echo "$expected_output")
 }
 
-@test "does not fail on invalid JSONPath selector if no JSON document provided" {
+@test "fails on invalid JSONPath selector even if no JSON document provided" {
     {
         run jp INVALID
     } <<< ""
 
-    [ "$status" -eq 0 ]
+    [ "$status" -eq 3 ]
 }
 
 @test "returns a null value correctly" {
