@@ -75,7 +75,7 @@ fn config() -> (Serialization, Formatting, bool, Vec<String>) {
              .action(ArgAction::SetTrue)
              .help("Prints example JSON for practising JSONPath"))
         .arg(Arg::new("SELECTOR")
-             .help("JSONPath selector")
+             .help("JSONPath selector(s)")
              .index(1)
              .num_args(..))
         .group(ArgGroup::new("formatting")
