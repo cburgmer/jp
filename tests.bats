@@ -254,6 +254,12 @@ ccc
     diff <(echo "$result") <(echo "$expected_output")
 }
 
+@test "serializes a stream into tabs for multiple queries" {
+    result="$(some_json_stream | jp -t '$.a[0]' '$.a[1]')"
+    expected_output="$(echo -e '"b"\t0\n"ccc"\t1')"
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
 @test "fails if -t is used without selector" {
     {
         run jp -t

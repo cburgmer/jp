@@ -138,21 +138,23 @@ fn main() {
             .collect::<Vec<_>>();
     }
 
-    let compiled_selectors = selectors.iter().map(|s| jsonpath::Compiled::compile(&s).unwrap_or_else(|err| {
+    let compiled_selectors = selectors.into_iter().map(|s| jsonpath::Compiled::compile(&s).unwrap_or_else(|err| {
         eprintln!("Unable to parse selector\n{}", err);
         process::exit(3);
     })).collect::<Vec<_>>();
 
     for json in stream {
+        let mut results = vec![];
         for compiled_selector in &compiled_selectors {
-            let results = compiled_selector.select(&json).unwrap();
-            let entries = serialize(results, &serialization);
+            results.append(&mut compiled_selector.select(&json).unwrap());
+        }
 
-            match formatting {
-                Formatting::Tabs => println!("{}", entries.join("\t")),
-                Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
-                Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
-            }
+        let entries = serialize(results, &serialization);
+
+        match formatting {
+            Formatting::Tabs => println!("{}", entries.join("\t")),
+            Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
+            Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
         }
     }
 }
