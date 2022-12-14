@@ -63,6 +63,14 @@ primitives_json_stream() {
     diff <(echo "$result") <(echo "$expected_output")
 }
 
+@test "lists results for multiple queries on one line each" {
+    result="$(some_json_input | jp '$.1[0]' '$.1[1]')"
+
+    expected_output='"2"
+3'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
 @test "fails on an invalid JSONPath selector with a nice message to stderr" {
     {
         run sh -c 'jp INVALID > /dev/null'
@@ -182,6 +190,15 @@ another'
 
 @test "handles a multiple match selector for JSON stream" {
     result="$(some_json_stream | jp '$.a[*]')"
+    expected_output='"b"
+0
+"ccc"
+1'
+    diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "list results for multiple queries for a stream grouping the queries by stream entry" {
+    result="$(some_json_stream | jp '$.a[0]' '$.a[1]')"
     expected_output='"b"
 0
 "ccc"

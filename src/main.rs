@@ -53,8 +53,8 @@ fn serialize(values: Vec<&Value>, serialization: &Serialization) -> Vec<String> 
         .collect()
 }
 
-fn config() -> (Serialization, Formatting, bool, String) {
-    let matches = Command::new("jp")
+fn config() -> (Serialization, Formatting, bool, Vec<String>) {
+    let mut matches = Command::new("jp")
         .version("0.4.0")
         .about("A simpler jq, and with JSONPath")
         .arg(Arg::new("r")
@@ -76,7 +76,8 @@ fn config() -> (Serialization, Formatting, bool, String) {
              .help("Prints example JSON for practising JSONPath"))
         .arg(Arg::new("SELECTOR")
              .help("JSONPath selector")
-             .index(1))
+             .index(1)
+             .num_args(..))
         .group(ArgGroup::new("formatting")
                .args(["tabs", "print0"])
                .multiple(false))
@@ -114,19 +115,13 @@ E.g. get the prices of everything in the store:
     }
 
     let root_selector = String::from("$");
+    let selectors = matches.remove_many::<String>("SELECTOR").map_or(vec![root_selector], |s| s.collect());
 
-    let selector = matches.get_one::<String>("SELECTOR").unwrap_or(&root_selector);
-
-    (serialization, formatting, matches.get_flag("example"), selector.to_string())
+    (serialization, formatting, matches.get_flag("example"), selectors)
 }
 
 fn main() {
-    let (serialization, formatting, output_example, selector) = config();
-
-    let template = jsonpath::Compiled::compile(&selector).unwrap_or_else(|err| {
-        eprintln!("Unable to parse selector\n{}", err);
-        process::exit(3);
-    });
+    let (serialization, formatting, output_example, selectors) = config();
 
     let stream;
     if output_example {
@@ -143,14 +138,21 @@ fn main() {
             .collect::<Vec<_>>();
     }
 
-    for json in stream {
-        let results = template.select(&json).unwrap();
-        let entries = serialize(results, &serialization);
+    let compiled_selectors = selectors.iter().map(|s| jsonpath::Compiled::compile(&s).unwrap_or_else(|err| {
+        eprintln!("Unable to parse selector\n{}", err);
+        process::exit(3);
+    })).collect::<Vec<_>>();
 
-        match formatting {
-            Formatting::Tabs => println!("{}", entries.join("\t")),
-            Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
-            Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
+    for json in stream {
+        for compiled_selector in &compiled_selectors {
+            let results = compiled_selector.select(&json).unwrap();
+            let entries = serialize(results, &serialization);
+
+            match formatting {
+                Formatting::Tabs => println!("{}", entries.join("\t")),
+                Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
+                Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
+            }
         }
     }
 }
