@@ -38,22 +38,20 @@ See [Howto jp](./HOWTO.md) for an introduction.
 ## Features
 
     $ jp --help
-    jp 0.4.0
     A simpler jq, and with JSONPath
 
-    USAGE:
-        jp [FLAGS] [SELECTOR]
+    Usage: jp [OPTIONS] [SELECTOR]...
 
-    FLAGS:
-            --example    Prints example JSON for practising JSONPath
-        -h, --help       Prints help information
-        -0               Separates all matches by NUL (\0), helpful in conjunction with xargs -0
-        -r               Unwraps primitive JSON values
-        -t               Transposes all matches per document, separated by tabs
-        -V, --version    Prints version information
+    Arguments:
+      [SELECTOR]...  JSONPath selector(s)
 
-    ARGS:
-        <SELECTOR>    JSONPath selector
+    Options:
+      -r             Unwraps primitive JSON values
+      -t             Transposes all matches per document, separated by tabs
+      -0             Separates all matches by NUL (\0), helpful in conjunction with xargs -0
+          --example  Prints example JSON for practising JSONPath
+      -h, --help     Print help information
+      -V, --version  Print version information
 
     SELECTOR EXAMPLES:
         array index         $[2]
