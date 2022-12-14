@@ -9,6 +9,12 @@ some_json_stream() {
     echo '{"a": ["ccc", 1]}'
 }
 
+some_json_stream_with_missing_values() {
+    echo '{"a": "alpha", "b": 2}'
+    echo '{"a": "gamma"}'
+    echo '{"a": "omega", "b": 1}'
+}
+
 primitives_json_stream() {
     echo '"str"'
     echo 42
@@ -258,6 +264,12 @@ ccc
     result="$(some_json_stream | jp -t '$.a[0]' '$.a[1]')"
     expected_output="$(echo -e '"b"\t0\n"ccc"\t1')"
     diff <(echo "$result") <(echo "$expected_output")
+}
+
+@test "respects missing values for multiple queries" {
+    result="$(some_json_stream_with_missing_values | jp -rt '$.b' '$.a' | sort -k2)" # we are sorting by key "$.a"
+    expected_output="$(echo -e '2\talpha\n\tgamma\n1\tomega')"
+    diff -y <(echo "$result") <(echo "$expected_output")
 }
 
 @test "fails if -t is used without selector" {
