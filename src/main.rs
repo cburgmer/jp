@@ -22,6 +22,13 @@ enum Formatting {
     Newlines
 }
 
+struct Config {
+    serialization: Serialization,
+    formatting: Formatting,
+    use_example: bool,
+    selectors: Vec<String>
+}
+
 fn serialize_json(value: &Value) -> String {
     serde_json::to_string(&value) .unwrap()
 }
@@ -53,7 +60,7 @@ fn serialize(values: Vec<&Value>, serialization: &Serialization) -> Vec<String> 
         .collect()
 }
 
-fn config() -> (Serialization, Formatting, bool, Vec<String>) {
+fn config() -> Config {
     let mut matches = Command::new("jp")
         .version("0.4.0")
         .about("A simpler jq, and with JSONPath")
@@ -116,15 +123,16 @@ E.g. get the prices of everything in the store:
 
     let root_selector = String::from("$");
     let selectors = matches.remove_many::<String>("SELECTOR").map_or(vec![root_selector], |s| s.collect());
+    let use_example = matches.get_flag("example");
 
-    (serialization, formatting, matches.get_flag("example"), selectors)
+    Config{serialization, formatting, use_example, selectors}
 }
 
 fn main() {
-    let (serialization, formatting, output_example, selectors) = config();
+    let config = config();
 
     let stream;
-    if output_example {
+    if config.use_example {
         stream = vec![example()];
     } else {
         stream = Deserializer::from_reader(io::stdin())
@@ -138,7 +146,7 @@ fn main() {
             .collect::<Vec<_>>();
     }
 
-    let compiled_selectors = selectors.into_iter().map(|s| jsonpath::Compiled::compile(&s).unwrap_or_else(|err| {
+    let compiled_selectors = config.selectors.into_iter().map(|s| jsonpath::Compiled::compile(&s).unwrap_or_else(|err| {
         eprintln!("Unable to parse selector\n{}", err);
         process::exit(3);
     })).collect::<Vec<_>>();
@@ -149,9 +157,9 @@ fn main() {
             results.append(&mut compiled_selector.select(&json).unwrap());
         }
 
-        let entries = serialize(results, &serialization);
+        let entries = serialize(results, &config.serialization);
 
-        match formatting {
+        match config.formatting {
             Formatting::Tabs => println!("{}", entries.join("\t")),
             Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
             Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
