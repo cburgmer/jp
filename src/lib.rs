@@ -169,6 +169,14 @@ fn serialize(values: Vec<&Value>, serialization: &Serialization) -> Vec<String> 
         .collect()
 }
 
+fn print(entries: Vec<String>, formatting: &Formatting) {
+    match formatting {
+        Formatting::Tabs => println!("{}", entries.join("\t")),
+        Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
+        Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
+    }
+}
+
 pub fn run(config: Config) {
     let stream;
     if config.use_example {
@@ -196,12 +204,6 @@ pub fn run(config: Config) {
             results.append(&mut compiled_selector.select(&json).unwrap());
         }
 
-        let entries = serialize(results, &config.serialization);
-
-        match config.formatting {
-            Formatting::Tabs => println!("{}", entries.join("\t")),
-            Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
-            Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
-        }
+        print(serialize(results, &config.serialization), &config.formatting);
     }
 }
