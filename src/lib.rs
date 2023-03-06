@@ -1,4 +1,5 @@
 use std::io;
+use std::io::Write;
 extern crate jsonpath_lib as jsonpath;
 extern crate serde_json;
 extern crate clap;
@@ -169,15 +170,15 @@ fn serialize(values: Vec<&Value>, serialization: &Serialization) -> Vec<String> 
         .collect()
 }
 
-fn print(entries: Vec<String>, formatting: &Formatting) {
+fn format(entries: Vec<String>, formatting: &Formatting) -> String{
     match formatting {
-        Formatting::Tabs => println!("{}", entries.join("\t")),
-        Formatting::Nul => entries.iter().for_each(|s| print!("{}\0", s)),
-        Formatting::Newlines => entries.iter().for_each(|s| println!("{}", s))
+        Formatting::Tabs => format!("{}\n", entries.join("\t")),
+        Formatting::Nul => entries.iter().map(|s| format!("{}\0", s)).collect::<Vec<_>>().join(""),
+        Formatting::Newlines => entries.iter().map(|s| format!("{}\n", s)).collect::<Vec<_>>().join("")
     }
 }
 
-pub fn run(config: Config) {
+pub fn run(config: Config) -> std::io::Result<()> {
     let stream;
     if config.use_example {
         stream = vec![example()];
@@ -204,6 +205,9 @@ pub fn run(config: Config) {
             results.append(&mut compiled_selector.select(&json).unwrap());
         }
 
-        print(serialize(results, &config.serialization), &config.formatting);
+        let output = format(serialize(results, &config.serialization), &config.formatting);
+        // Avoid failing if pipe closed https://github.com/rust-lang/rust/issues/46016
+        write!(std::io::stdout(), "{}", output)?
     }
+    Ok(())
 }
